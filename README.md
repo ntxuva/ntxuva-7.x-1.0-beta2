@@ -1,2 +1,3 @@
-ntxuva-7.x-1.0-beta2
+ntxuva
 ====================
+A Participatory Monitoring System for cities in Developing Countries based on Drupal, Mark-a-Spot and VoIP Drupal.
