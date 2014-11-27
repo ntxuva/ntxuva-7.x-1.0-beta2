@@ -118,6 +118,7 @@ function mark_a_spot_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(
           'field_formatter_class' => '',
+          'semantic_field_format' => 0,
         ),
         'type' => 'text_default',
         'weight' => 1,
@@ -482,13 +483,12 @@ function mark_a_spot_field_default_field_instances() {
         'settings' => array(
           'field_formatter_class' => 'pull-left',
           'leafletImagePath' => 'profiles/markaspot/libraries/leaflet/images/',
-          'map_dimensions' => '90x90',
+          'map_dimensions' => '100x100',
           'map_imageformat' => 'png',
           'map_key' => '',
           'map_zoomlevel' => 15,
-          'mapbox' => 0,
           'marker_icon' => '',
-          'tile_server_static' => 'http://staticmap.openstreetmap.de/staticmap.php',
+          'tile_server_static' => 'http://dev.openstreetmap.de/staticmap/staticmap.php',
         ),
         'type' => 'geolocation_osm_static',
         'weight' => 1,
@@ -519,15 +519,17 @@ function mark_a_spot_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'geolocation_osm',
         'settings' => array(
-          'field_formatter_class' => 'pull-left',
+          'cloudmade_api_key' => '165795623c424338ad9a8eb60484ef0e',
+          'field_formatter_class' => '',
           'leafletImagePath' => 'profiles/markaspot/libraries/leaflet/images/',
-          'map_dimensions' => '90x90',
+          'map_dimensions' => '300x300',
           'map_imageformat' => 'png',
           'map_key' => '',
+          'map_style' => 997,
           'map_zoomlevel' => 13,
-          'mapbox' => 0,
           'marker_icon' => '',
-          'tile_server_static' => 'http://staticmap.openstreetmap.de/staticmap.php',
+          'semantic_field_format' => 0,
+          'tile_server_static' => 'http://dev.openstreetmap.de/staticmap/',
         ),
         'type' => 'geolocation_osm_static',
         'weight' => 2,
@@ -629,6 +631,7 @@ function mark_a_spot_field_default_field_instances() {
           'field_formatter_class' => '',
           'image_link' => '',
           'image_style' => 'mas_thumb',
+          'semantic_field_format' => 0,
         ),
         'type' => 'image',
         'weight' => 0,
@@ -848,15 +851,9 @@ function mark_a_spot_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'field_formatter_css_class',
-        'settings' => array(
-          'depth' => 0,
-          'field_formatter_class' => '',
-          'hidden' => 1,
-          'target' => 'node',
-        ),
-        'type' => 'cssclass_formatter',
-        'weight' => 4,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'above',
@@ -910,15 +907,7 @@ function mark_a_spot_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(
           'field_formatter_class' => '',
-        ),
-        'type' => 'text_default',
-        'weight' => 3,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(
-          'field_formatter_class' => '',
+          'semantic_field_format' => 0,
         ),
         'type' => 'text_default',
         'weight' => 4,
@@ -952,15 +941,9 @@ function mark_a_spot_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'field_formatter_css_class',
-        'settings' => array(
-          'depth' => 0,
-          'field_formatter_class' => '',
-          'hidden' => 1,
-          'target' => 'node',
-        ),
-        'type' => 'cssclass_formatter',
-        'weight' => 5,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'above',
@@ -1014,15 +997,7 @@ function mark_a_spot_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(
           'field_formatter_class' => '',
-        ),
-        'type' => 'text_default',
-        'weight' => 2,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(
-          'field_formatter_class' => '',
+          'semantic_field_format' => 0,
         ),
         'type' => 'text_default',
         'weight' => 3,
@@ -1059,15 +1034,7 @@ function mark_a_spot_field_default_field_instances() {
         'module' => 'taxonomy',
         'settings' => array(
           'field_formatter_class' => '',
-        ),
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 1,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'module' => 'taxonomy',
-        'settings' => array(
-          'field_formatter_class' => '',
+          'semantic_field_format' => 0,
         ),
         'type' => 'taxonomy_term_reference_link',
         'weight' => 2,
@@ -1097,20 +1064,7 @@ function mark_a_spot_field_default_field_instances() {
     'bundle' => 'status',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'darkred : 8B0000
-orange : FFA500
-green : 008000
-darkgreen : 006400
-blue : 0000FF
-darkblue : 00008B
-purple : 800080
-darkpurple : 871F78
-cadetblue : 5F9EA0
-lightgray : D3D3D3
-gray : 808080
-black : 000000
-beige : F5F5DC
-white : 5F9EA0',
+    'description' => '',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -1230,20 +1184,6 @@ white : 5F9EA0',
   t('categoryHex');
   t('categoryId');
   t('category_icon');
-  t('darkred : 8B0000
-orange : FFA500
-green : 008000
-darkgreen : 006400
-blue : 0000FF
-darkblue : 00008B
-purple : 800080
-darkpurple : 871F78
-cadetblue : 5F9EA0
-lightgray : D3D3D3
-gray : 808080
-black : 000000
-beige : F5F5DC
-white : 5F9EA0');
   t('hash');
   t('keywords');
   t('statusHex');

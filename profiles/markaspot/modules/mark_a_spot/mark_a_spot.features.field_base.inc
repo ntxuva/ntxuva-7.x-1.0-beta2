@@ -401,36 +401,6 @@ function mark_a_spot_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_note'
-  $field_bases['field_note'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_note',
-    'field_permissions' => array(
-      'type' => 2,
-    ),
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(),
-    'translatable' => 0,
-    'type' => 'text_long',
-  );
-
   // Exported field_base: 'field_notify_user'
   $field_bases['field_notify_user'] = array(
     'active' => 1,
@@ -463,7 +433,7 @@ function mark_a_spot_field_default_field_bases() {
   // Exported field_base: 'field_statement'
   $field_bases['field_statement'] = array(
     'active' => 1,
-    'cardinality' => -1,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_statement',
@@ -471,35 +441,23 @@ function mark_a_spot_field_default_field_bases() {
       'type' => 2,
     ),
     'foreign keys' => array(
-      'nid' => array(
+      'format' => array(
         'columns' => array(
-          'nid' => 'nid',
+          'format' => 'format',
         ),
-        'table' => 'node',
+        'table' => 'filter_format',
       ),
     ),
     'indexes' => array(
-      'nid' => array(
-        0 => 'nid',
+      'format' => array(
+        0 => 'format',
       ),
     ),
     'locked' => 0,
-    'module' => 'node_reference',
-    'settings' => array(
-      'referenceable_types' => array(
-        'article' => 0,
-        'page' => 0,
-        'report' => 0,
-        'statement' => 'statement',
-      ),
-      'view' => array(
-        'args' => array(),
-        'display_name' => '',
-        'view_name' => '',
-      ),
-    ),
+    'module' => 'text',
+    'settings' => array(),
     'translatable' => 0,
-    'type' => 'node_reference',
+    'type' => 'text_long',
   );
 
   // Exported field_base: 'field_status'
@@ -547,9 +505,6 @@ function mark_a_spot_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_status_hex',
-    'field_permissions' => array(
-      'type' => 0,
-    ),
     'foreign keys' => array(
       'format' => array(
         'columns' => array(

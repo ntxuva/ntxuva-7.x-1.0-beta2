@@ -28,7 +28,6 @@
       }
     });
     map.addControl(drawControl);
-    L.control.locate().addTo(map);
 
     map.on('draw:edited', function (e) {
       var layers = e.layers;
@@ -52,5 +51,15 @@
       $('#edit-markaspot-logic-bbox-se-lng').val(bbox.getSouthEast().lng);
 
     }
+  });
+})(jQuery);
+
+
+(function ($) {
+  $(document).ready(function(){
+
+  console.log(map);
+
+
   });
 })(jQuery);

@@ -126,11 +126,11 @@ L.Draw.Feature = L.Handler.extend({
 	enable: function () {
 		if (this._enabled) { return; }
 
-		L.Handler.prototype.enable.call(this);
-
 		this.fire('enabled', { handler: this.type });
 
 		this._map.fire('draw:drawstart', { layerType: this.type });
+
+		L.Handler.prototype.enable.call(this);
 	},
 
 	disable: function () {
@@ -782,12 +782,6 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		this._isDrawing = false;
 	},
 
-	_getTooltipText: function () {
-		return {
-			text: this._endLabelText
-		};
-	},
-
 	_onMouseDown: function (e) {
 		this._isDrawing = true;
 		this._startLatLng = e.latlng;
@@ -802,7 +796,7 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 
 		this._tooltip.updatePosition(latlng);
 		if (this._isDrawing) {
-			this._tooltip.updateContent(this._getTooltipText());
+			this._tooltip.updateContent({ text: this._endLabelText });
 			this._drawShape(latlng);
 		}
 	},
@@ -834,8 +828,7 @@ L.Draw.Rectangle = L.Draw.SimpleShape.extend({
 			fillColor: null, //same as color by default
 			fillOpacity: 0.2,
 			clickable: true
-		},
-		metric: true // Whether to use the metric meaurement system or imperial
+		}
 	},
 
 	initialize: function (map, options) {
@@ -859,23 +852,6 @@ L.Draw.Rectangle = L.Draw.SimpleShape.extend({
 	_fireCreatedEvent: function () {
 		var rectangle = new L.Rectangle(this._shape.getBounds(), this.options.shapeOptions);
 		L.Draw.SimpleShape.prototype._fireCreatedEvent.call(this, rectangle);
-	},
-
-	_getTooltipText: function () {
-		var tooltipText = L.Draw.SimpleShape.prototype._getTooltipText.call(this),
-			shape = this._shape,
-			latLngs, area, subtext;
-
-		if (shape) {
-			latLngs = this._shape.getLatLngs();
-			area = L.GeometryUtil.geodesicArea(latLngs);
-			subtext = L.GeometryUtil.readableArea(area, this.options.metric);
-		}
-
-		return {
-			text: tooltipText.text,
-			subtext: subtext
-		};
 	}
 });
 
@@ -1697,7 +1673,7 @@ L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
 				areaStr = area.toFixed(2) + ' m&sup2;';
 			}
 		} else {
-			area /= 0.836127; // Square yards in 1 meter
+			area *= 0.836127; // Square yards in 1 meter
 
 			if (area >= 3097600) { //3097600 square yards in 1 square mile
 				areaStr = (area / 3097600).toFixed(2) + ' mi&sup2;';
@@ -1881,27 +1857,27 @@ L.Control.Draw = L.Control.extend({
 
 		L.Control.prototype.initialize.call(this, options);
 
-		var toolbar;
+		var id, toolbar;
 
 		this._toolbars = {};
 
 		// Initialize toolbars
 		if (L.DrawToolbar && this.options.draw) {
 			toolbar = new L.DrawToolbar(this.options.draw);
-
-			this._toolbars[L.DrawToolbar.TYPE] = toolbar;
+			id = L.stamp(toolbar);
+			this._toolbars[id] = toolbar;
 
 			// Listen for when toolbar is enabled
-			this._toolbars[L.DrawToolbar.TYPE].on('enable', this._toolbarEnabled, this);
+			this._toolbars[id].on('enable', this._toolbarEnabled, this);
 		}
 
 		if (L.EditToolbar && this.options.edit) {
 			toolbar = new L.EditToolbar(this.options.edit);
-
-			this._toolbars[L.EditToolbar.TYPE] = toolbar;
+			id = L.stamp(toolbar);
+			this._toolbars[id] = toolbar;
 
 			// Listen for when toolbar is enabled
-			this._toolbars[L.EditToolbar.TYPE].on('enable', this._toolbarEnabled, this);
+			this._toolbars[id].on('enable', this._toolbarEnabled, this);
 		}
 	},
 
@@ -1949,10 +1925,10 @@ L.Control.Draw = L.Control.extend({
 	},
 
 	_toolbarEnabled: function (e) {
-		var enabledToolbar = e.target;
+		var id = '' + L.stamp(e.target);
 
 		for (var toolbarId in this._toolbars) {
-			if (this._toolbars[toolbarId] !== enabledToolbar) {
+			if (this._toolbars.hasOwnProperty(toolbarId) && toolbarId !== id) {
 				this._toolbars[toolbarId].disable();
 			}
 		}
@@ -2286,10 +2262,6 @@ L.Tooltip = L.Class.extend({
 
 L.DrawToolbar = L.Toolbar.extend({
 
-	statics: {
-		TYPE: 'draw'
-	},
-
 	options: {
 		polyline: {},
 		polygon: {},
@@ -2378,10 +2350,6 @@ L.DrawToolbar = L.Toolbar.extend({
 });*/
 
 L.EditToolbar = L.Toolbar.extend({
-	statics: {
-		TYPE: 'edit'
-	},
-
 	options: {
 		edit: {
 			selectedPathOptions: {
@@ -2391,10 +2359,7 @@ L.EditToolbar = L.Toolbar.extend({
 
 				fill: true,
 				fillColor: '#fe57a1',
-				fillOpacity: 0.1,
-
-				// Whether to user the existing layers color
-				maintainColor: false
+				fillOpacity: 0.1
 			}
 		},
 		remove: {},
@@ -2407,7 +2372,7 @@ L.EditToolbar = L.Toolbar.extend({
 			if (typeof options.edit.selectedPathOptions === 'undefined') {
 				options.edit.selectedPathOptions = this.options.edit.selectedPathOptions;
 			}
-			options.edit.selectedPathOptions = L.extend({}, this.options.edit.selectedPathOptions, options.edit.selectedPathOptions);
+			options.edit = L.extend({}, this.options.edit, options.edit);
 		}
 
 		if (options.remove) {
@@ -2718,12 +2683,6 @@ L.EditToolbar.Edit = L.Handler.extend({
 		// Update layer style so appears editable
 		if (this._selectedPathOptions) {
 			pathOptions = L.Util.extend({}, this._selectedPathOptions);
-
-			// Use the existing color of the layer
-			if (pathOptions.maintainColor) {
-				pathOptions.color = layer.options.color;
-				pathOptions.fillColor = layer.options.fillColor;
-			}
 
 			if (isMarker) {
 				this._toggleMarkerHighlight(layer);

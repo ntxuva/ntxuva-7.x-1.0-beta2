@@ -1,9 +1,5 @@
 L.DrawToolbar = L.Toolbar.extend({
 
-	statics: {
-		TYPE: 'draw'
-	},
-
 	options: {
 		polyline: {},
 		polygon: {},

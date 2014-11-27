@@ -3,10 +3,6 @@
 });*/
 
 L.EditToolbar = L.Toolbar.extend({
-	statics: {
-		TYPE: 'edit'
-	},
-
 	options: {
 		edit: {
 			selectedPathOptions: {
@@ -16,10 +12,7 @@ L.EditToolbar = L.Toolbar.extend({
 
 				fill: true,
 				fillColor: '#fe57a1',
-				fillOpacity: 0.1,
-
-				// Whether to user the existing layers color
-				maintainColor: false
+				fillOpacity: 0.1
 			}
 		},
 		remove: {},
@@ -32,7 +25,7 @@ L.EditToolbar = L.Toolbar.extend({
 			if (typeof options.edit.selectedPathOptions === 'undefined') {
 				options.edit.selectedPathOptions = this.options.edit.selectedPathOptions;
 			}
-			options.edit.selectedPathOptions = L.extend({}, this.options.edit.selectedPathOptions, options.edit.selectedPathOptions);
+			options.edit = L.extend({}, this.options.edit, options.edit);
 		}
 
 		if (options.remove) {

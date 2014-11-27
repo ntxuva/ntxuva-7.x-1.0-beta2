@@ -165,3 +165,7 @@
 .section-line-chart canvas {
 
 }
+.highlighted {
+    text-decoration: underline;
+    font-weight: bold;
+}

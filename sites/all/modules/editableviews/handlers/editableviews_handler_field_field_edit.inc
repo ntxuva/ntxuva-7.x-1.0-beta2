@@ -146,8 +146,20 @@ class editableviews_handler_field_field_edit extends views_handler_field_field {
 
   /**
    * Handle the form validation for this field's form element.
+   *
+   * @param $entity_type
+   *  The entity type.
+   * @param $entity
+   *  The entity.
+   * @param &$element
+   *  The partial form, at $form[ENTITY_ID].
+   * @param &$form_state
+   *  The form state.
+   * @param &$errors
+   *  An array of errors, in the same format as expected by
+   *  hook_field_attach_validate().
    */
-  function edit_form_validate($entity_type, $entity, &$element, &$form_state) {
+  function edit_form_validate($entity_type, $entity, &$element, &$form_state, &$errors) {
     list($entity_id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
     $field_name = $this->definition['field_name'];
     $field_instance = field_info_instance($entity_type, $field_name, $bundle);
@@ -160,9 +172,6 @@ class editableviews_handler_field_field_edit extends views_handler_field_field {
       return;
     }
 
-    // Start with a fresh errors array for each field.
-    $errors = array();
-
     // Extract field values from submitted values.
     // We pass a partial $form array to the Field API hook. This contains at
     // its base the #parents array, which tells Field API where to look for
@@ -173,26 +182,38 @@ class editableviews_handler_field_field_edit extends views_handler_field_field {
     ctools_field_invoke_field_default($field_instance, 'validate', $entity_type, $entity, $errors);
     // Check field-type specific errors.
     ctools_field_invoke_field($field_instance, 'validate', $entity_type, $entity, $errors);
+  }
 
-    // Let other modules validate the entity.
-    // Avoid module_invoke_all() to let $errors be taken by reference.
-    foreach (module_implements('field_attach_validate') as $module) {
-      $function = $module . '_field_attach_validate';
-      $function($entity_type, $entity, $errors);
-    }
+  /**
+   * Set form validation errors for this field's form element.
+   *
+   * @param $entity_type
+   *  The entity type.
+   * @param $entity
+   *  The entity.
+   * @param &$element
+   *  The partial form, at $form[ENTITY_ID].
+   * @param &$form_state
+   *  The form state.
+   * @param &$errors
+   *  An array of errors, in the same format as expected by
+   *  hook_field_attach_validate().
+   */
+  function edit_form_validate_errors($entity_type, $entity, &$element, &$form_state, &$errors) {
+    list($entity_id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+    $field_name = $this->definition['field_name'];
+    $field_instance = field_info_instance($entity_type, $field_name, $bundle);
 
-    if ($errors) {
-      // Pass field-level validation errors back to widgets for accurate error
-      // flagging.
-      foreach ($errors as $field_errors) {
-        foreach ($field_errors as $langcode => $errors) {
-          $field_state = field_form_get_state($element['#parents'], $field_name, $langcode, $form_state);
-          $field_state['errors'] = $errors;
-          field_form_set_state($element['#parents'], $field_name, $langcode, $form_state, $field_state);
-        }
+    // Pass field-level validation errors back to widgets for accurate error
+    // flagging.
+    foreach ($errors as $field_errors) {
+      foreach ($field_errors as $langcode => $errors) {
+        $field_state = field_form_get_state($element['#parents'], $field_name, $langcode, $form_state);
+        $field_state['errors'] = $errors;
+        field_form_set_state($element['#parents'], $field_name, $langcode, $form_state, $field_state);
       }
-      ctools_field_invoke_field_default($field_instance, 'form_errors', $entity_type, $entity, $element, $form_state);
     }
+    ctools_field_invoke_field_default($field_instance, 'form_errors', $entity_type, $entity, $element, $form_state);
   }
 
   /**

@@ -54,9 +54,6 @@
 //
           var city = result.address.city ? result.address.city : "";
           city = city ? city : result.address.village;
-          city = city ? city : result.address.town;
-          city = city ? city : result.address.hamlet;
-          city = city ? city : result.address.state_district;
 
           street      = result.address.house_number ? street + ' ' + result.address.house_number : street;
           var postcode    = result.address.postcode ? result.address.postcode : "";
@@ -113,12 +110,6 @@
         street = street ? street : Drupal.t('City Center');
 
         street = result[0].address.house_number ? street + ' ' + result[0].address.house_number : street;
-
-        var city = result[0].address.city ? result[0].address.city : "";
-        city = city ? city : result[0].address.town;
-        city = city ? city : result[0].address.village;
-        city = city ? city : result[0].address.hamlet;
-        city = city ? city : result[0].address.state_district;
 
         postcode = result[0].address.postcode ? result[0].address.postcode + " " : "";
         var address = street + ', ' + postcode + result[0].address.city;

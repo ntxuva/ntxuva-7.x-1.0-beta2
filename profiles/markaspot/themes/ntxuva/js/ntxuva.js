@@ -407,7 +407,8 @@ var lang_pt = {
                 return;
             
             this.timelineChart = new Chart(this.$timelineChart.get(0).getContext("2d")).Line(lineGraphData, {
-                                    bezierCurve: false
+                                    bezierCurve: false,
+                                    multiTooltipTemplate: "<%if (datasetLabel){%><%=datasetLabel%>: <%}%><%= value %>"
                                 });
         },
         renderGraphs: function(){
@@ -483,9 +484,9 @@ var lang_pt = {
             this.$statusSelect   = $('#status-form-select');
             this.$addressSelect  = $('#address-form-select');
 
-            this.servicePieChart = new Chart(this.$serviceChart.find('canvas').get(0).getContext("2d")).Pie([]);
-            this.statusPieChart  = new Chart(this.$statusChart.find('canvas').get(0).getContext("2d")).Pie([]);
-            this.addressPieChart = new Chart(this.$addressChart.find('canvas').get(0).getContext("2d")).Pie([]);
+            this.servicePieChart = new Chart(this.$serviceChart.find('canvas').get(0).getContext("2d")).Pie([], {tooltipTemplate: "<%= value %>", onShowTooltip: onShowTooltip});
+            this.statusPieChart  = new Chart(this.$statusChart.find('canvas').get(0).getContext("2d")).Pie([], {tooltipTemplate: "<%= value %>", onShowTooltip: onShowTooltip});
+            this.addressPieChart = new Chart(this.$addressChart.find('canvas').get(0).getContext("2d")).Pie([], {tooltipTemplate: "<%= value %>", onShowTooltip: onShowTooltip});
 
             this.$categorySelect.on({
                 change: function(event){
@@ -522,6 +523,22 @@ var lang_pt = {
                     }
                 }
             });
+
+            function onShowTooltip(segment){
+                $legend = $('.section-pie-charts:eq(0)').find("li.highlighted");
+                if ($legend.length) {
+                    color = $legend.css('color');
+                    $legend.css('color', color.replace(/\d+\.\d+\)$/, '0.7)')).removeClass('highlighted');
+                }
+                if (segment.length && segment[0].label) {
+                    var $legend = $('.section-pie-charts:eq(0)').find("li:contains('" + segment[0].label + "')");
+                    if (!$legend.length)
+                        return;
+
+                    var color = $legend.css('color');
+                    $legend.css('color', color.replace(/\d+\.\d+\)$/, '0.99)')).addClass('highlighted');
+                }
+            }
         },
         init: function(){
             var _self = this;

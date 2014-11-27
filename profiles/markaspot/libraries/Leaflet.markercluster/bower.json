@@ -6,11 +6,7 @@
         "Dave Leaver <danzel@localhost.geek.nz>"
     ],
     "description": "Marker Clustering plugin for Leaflet.",
-    "main": [
-        "dist/leaflet.markercluster-src.js",
-        "dist/MarkerCluster.css",
-        "dist/MarkerCluster.Default.css"
-    ],
+    "main": "dist/leaflet.markercluster.js",
     "license": "MIT",
     "ignore": [
         "**/.*",

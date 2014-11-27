@@ -108,19 +108,19 @@ function markaspot_create_status() {
   $terms[0] = array(
     'Open',
     'This is just a description which should be replaced',
-    'FF0000',
+    'cc0000',
     'pause',
   );
   $terms[1] = array(
     'In progress',
     'This is just a description which should be replaced',
-    'FFA500',
+    'ff6600',
     'play',
   );
   $terms[3] = array(
     'Solved',
     'This is just a description which should be replaced',
-    '008000',
+    '8fe83b',
     'checkmark',
   );
   $terms[4] = array(
@@ -199,7 +199,7 @@ function markaspot_create_categories() {
     'abandoned, wrecked, dismantled, or inoperative cars on private property',
     '010',
     'abandonedcar, cars, wreckedcar, car',
-    '8B0000',
+    '00008B',
     'car',
   );
   $terms[1] = array(
@@ -215,7 +215,7 @@ function markaspot_create_categories() {
     'Report graffiti on a building you own.',
     '012',
     'graffiti, paintings',
-    'F5F5DC',
+    '8B0000',
     'graffiti',
   );
   $terms[3] = array(

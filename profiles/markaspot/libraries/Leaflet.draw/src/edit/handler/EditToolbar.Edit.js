@@ -135,8 +135,6 @@ L.EditToolbar.Edit = L.Handler.extend({
 			} else if (layer instanceof L.Marker) { // Marker
 				layer.setLatLng(this._uneditedLayerProps[id].latlng);
 			}
-
-			layer.fire('revert-edited', { layer: layer });
 		}
 	},
 
@@ -189,12 +187,6 @@ L.EditToolbar.Edit = L.Handler.extend({
 		// Update layer style so appears editable
 		if (this._selectedPathOptions) {
 			pathOptions = L.Util.extend({}, this._selectedPathOptions);
-
-			// Use the existing color of the layer
-			if (pathOptions.maintainColor) {
-				pathOptions.color = layer.options.color;
-				pathOptions.fillColor = layer.options.fillColor;
-			}
 
 			if (isMarker) {
 				this._toggleMarkerHighlight(layer);

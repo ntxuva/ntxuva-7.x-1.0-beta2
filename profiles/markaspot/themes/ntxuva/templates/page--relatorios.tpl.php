@@ -60,19 +60,19 @@
                         <div class="form-select-element">
                             <label class="form-label label-category">Categorias</label>
                             <select id="category-form-select" name="category-form-select" class="form-control form-select">
-                                <option value="">Please select category</option>
+                                <option value="">Escolher Categoria</option>
                             </select>
                         </div>
                         <div class="form-select-element">
                             <label class="form-label label-status">Estados</label>
                             <select id="status-form-select" name="status-form-select" class="form-control form-select">
-                                <option value="">Please select status</option>
+                                <option value="">Escolher Estados</option>
                             </select>
                         </div>
                         <div class="form-select-element">
                             <label class="form-label label-address">Bairros</label>
                             <select id="address-form-select" name="address-form-select" class="form-control form-select">
-                                <option value="">Please select address</option>
+                                <option value="">Escolher Bairro</option>
                             </select>
                         </div>
                     </div>
@@ -105,10 +105,10 @@
                         <span class="icon-time"></span>
                     </div>
                     <div class="section-content">
-                        <label class="year-label">Select Year</label>
+                        <label class="year-label">Escolher Ano</label>
                         <select id="year-form-select" name="year-form-select" class="form-control form-select"></select>                        
                         <ul class="months-list"></ul>
-                        <label class="month-label">Select Month</label>
+                        <label class="month-label">Escolher Mês</label>
                     </div>
                 </div>
                 <div class="section-line-chart">

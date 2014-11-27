@@ -7,7 +7,7 @@
 var oldL = window.L,
     L = {};
 
-L.version = '0.7.2';
+L.version = '0.7';
 
 // define Leaflet for Node module pattern loaders, including Browserify
 if (typeof module === 'object' && typeof module.exports === 'object') {
@@ -134,16 +134,21 @@ L.Util = {
 		}
 		return ((!existingUrl || existingUrl.indexOf('?') === -1) ? '?' : '&') + params.join('&');
 	},
-	template: function (str, data) {
-		return str.replace(/\{ *([\w_]+) *\}/g, function (str, key) {
-			var value = data[key];
-			if (value === undefined) {
-				throw new Error('No value provided for variable ' + str);
-			} else if (typeof value === 'function') {
-				value = value(data);
-			}
-			return value;
+
+	compileTemplate: function (str, data) {
+		// based on https://gist.github.com/padolsey/6008842
+		str = str.replace(/"/g, '\\\"');
+		str = str.replace(/\{ *([\w_]+) *\}/g, function (str, key) {
+			return '" + o["' + key + '"]' + (typeof data[key] === 'function' ? '(o)' : '') + ' + "';
 		});
+		// jshint evil: true
+		return new Function('o', 'return "' + str + '";');
+	},
+
+	template: function (str, data) {
+		var cache = L.Util._templateCache = L.Util._templateCache || {};
+		cache[str] = cache[str] || L.Util.compileTemplate(str, data);
+		return cache[str](data);
 	},
 
 	isArray: Array.isArray || function (obj) {
@@ -529,7 +534,7 @@ L.Mixin.Events.fire = L.Mixin.Events.fireEvent;
 
 	    doc = document.documentElement,
 	    ie3d = ie && ('transition' in doc.style),
-	    webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23,
+	    webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()),
 	    gecko3d = 'MozPerspective' in doc.style,
 	    opera3d = 'OTransition' in doc.style,
 	    any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d || opera3d) && !phantomjs;
@@ -1065,6 +1070,11 @@ L.DomUtil = {
 
 		if (!disable3D && L.Browser.any3d) {
 			el.style[L.DomUtil.TRANSFORM] =  L.DomUtil.getTranslateString(point);
+
+			// workaround for Android 2/3 stability (https://github.com/CloudMade/Leaflet/issues/69)
+			if (L.Browser.mobileWebkit3d) {
+				el.style.WebkitBackfaceVisibility = 'hidden';
+			}
 		} else {
 			el.style.left = point.x + 'px';
 			el.style.top = point.y + 'px';
@@ -1760,8 +1770,6 @@ L.Map = L.Class.extend({
 	},
 
 	invalidateSize: function (options) {
-		if (!this._loaded) { return this; }
-
 		options = L.extend({
 			animate: false,
 			pan: true
@@ -1770,6 +1778,8 @@ L.Map = L.Class.extend({
 		var oldSize = this.getSize();
 		this._sizeChanged = true;
 		this._initialCenter = null;
+
+		if (!this._loaded) { return this; }
 
 		var newSize = this.getSize(),
 		    oldCenter = oldSize.divideBy(2).round(),
@@ -2847,9 +2857,11 @@ L.TileLayer = L.Class.extend({
 		/*
 		Chrome 20 layouts much faster with top/left (verify with timeline, frames)
 		Android 4 browser has display issues with top/left and requires transform instead
+		Android 2 browser requires top/left or tiles disappear on load or first drag
+		(reappear after zoom) https://github.com/CloudMade/Leaflet/issues/866
 		(other browsers don't currently care) - see debug/hacks/jitter.html for an example
 		*/
-		L.DomUtil.setPosition(tile, tilePos, L.Browser.chrome);
+		L.DomUtil.setPosition(tile, tilePos, L.Browser.chrome || L.Browser.android23);
 
 		this._tiles[tilePoint.x + ':' + tilePoint.y] = tile;
 
@@ -2895,7 +2907,7 @@ L.TileLayer = L.Class.extend({
 	_getWrapTileNum: function () {
 		var crs = this._map.options.crs,
 		    size = crs.getSize(this._map.getZoom());
-		return size.divideBy(this._getTileSize())._floor();
+		return size.divideBy(this.options.tileSize);
 	},
 
 	_adjustTilePoint: function (tilePoint) {
@@ -4469,10 +4481,10 @@ L.FeatureGroup = L.LayerGroup.extend({
 	},
 
 	_propagateEvent: function (e) {
-		e = L.extend({
+		e = L.extend({}, e, {
 			layer: e.target,
 			target: this
-		}, e);
+		});
 		this.fire(e.type, e);
 	}
 });
@@ -5243,7 +5255,7 @@ L.Map.include((L.Path.SVG && !window.L_PREFER_CANVAS) || !L.Browser.canvas ? {} 
  * and polylines (clipping, simplification, distances, etc.)
  */
 
-/*jshint bitwise:false */ // allow bitwise operations for this file
+/*jshint bitwise:false */ // allow bitwise oprations for this file
 
 L.LineUtil = {
 
@@ -5976,7 +5988,6 @@ L.CircleMarker = L.Circle.extend({
 		if (this._popup && this._popup._isOpen) {
 			this._popup.setLatLng(latlng);
 		}
-		return this;
 	},
 
 	setRadius: function (radius) {
@@ -6529,15 +6540,26 @@ L.DomEvent = {
 	},
 
 	getMousePosition: function (e, container) {
+		var body = document.body,
+		    docEl = document.documentElement,
+		    //gecko makes scrollLeft more negative as you scroll in rtl, other browsers don't
+			//ref: https://code.google.com/p/closure-library/source/browse/closure/goog/style/bidi.js
+			x = L.DomUtil.documentIsLtr() ?
+					(e.pageX ? e.pageX - body.scrollLeft - docEl.scrollLeft : e.clientX) :
+						(L.Browser.gecko ? e.pageX - body.scrollLeft - docEl.scrollLeft :
+						 e.pageX ? e.pageX - body.scrollLeft + docEl.scrollLeft : e.clientX),
+		    y = e.pageY ? e.pageY - body.scrollTop - docEl.scrollTop: e.clientY,
+		    pos = new L.Point(x, y);
+
 		if (!container) {
-			return new L.Point(e.clientX, e.clientY);
+			return pos;
 		}
 
-		var rect = container.getBoundingClientRect();
+		var rect = container.getBoundingClientRect(),
+		    left = rect.left - container.clientLeft,
+		    top = rect.top - container.clientTop;
 
-		return new L.Point(
-			e.clientX - rect.left - container.clientLeft,
-			e.clientY - rect.top - container.clientTop);
+		return pos._subtract(new L.Point(left, top));
 	},
 
 	getWheelDelta: function (e) {
@@ -6747,7 +6769,7 @@ L.Draggable = L.Class.extend({
 		L.DomUtil.enableImageDrag();
 		L.DomUtil.enableTextSelection();
 
-		if (this._moved && this._moving) {
+		if (this._moved) {
 			// ensure drag is not fired after dragend
 			L.Util.cancelAnimFrame(this._animRequest);
 
@@ -8881,8 +8903,8 @@ if (L.DomUtil.TRANSITION) {
 
 L.Map.include(!L.DomUtil.TRANSITION ? {} : {
 
-	_catchTransitionEnd: function (e) {
-		if (this._animatingZoom && e.propertyName.indexOf('transform') >= 0) {
+	_catchTransitionEnd: function () {
+		if (this._animatingZoom) {
 			this._onZoomTransitionEnd();
 		}
 	},
