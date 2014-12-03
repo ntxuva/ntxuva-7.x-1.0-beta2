@@ -220,30 +220,14 @@ function markaspot_log_comment_presave($comment) {
     );
   }
 
-  if (in_array('administrator', $user->roles)) {
-    $data = array(
-      'message' => t('A comment has been created by Site Administration'),
-      'level'  => 'warning',
-      'css_class'   => 'comment',
-    );
-  }
-
-  in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+  if (in_array('administrator', $user->roles) ||
+    in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
     $data = array(
       'message' => t('A comment has been created by City Administration'),
       'level'  => 'warning',
       'css_class'   => 'comment',
     );
   }
-  
-  else {
-    $data = array(
-      'message' => t('A comment has been created by Citizen'),
-      'level'  => 'danger',
-      'css_class'   => 'comment',
-    );
-  }
-
   $data = (object) $data;
 
   unset($data->nid);
