@@ -331,7 +331,7 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
 
   $request['agency_responsible'] = NULL;
   $request['service_notice'] = NULL;
-    
+
   if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['address_id'] = $node->field_neighbourhood[$node->language][0]['value'];
 
   $request['requested_datetime'] = date('c', $node->created);
@@ -462,7 +462,7 @@ function markaspot_open311_tax_map_service($taxonomy_term) {
   $service['metadata'] = "false";
   $service['type'] = 'realtime';
   $service['description'] = $taxonomy_term->description;
-  $service['keywords'] = $taxonomy_term->field_hash[$lang][0]['value'];
+  # $service['keywords'] = $taxonomy_term->field_hash[$lang][0]['value'];
 
   return $service;
 }
