@@ -220,7 +220,7 @@ function markaspot_log_comment_presave($comment) {
     );
   }
 
-  if (in_array('administrator', $user->roles)) {
+  else if (in_array('administrator', $user->roles)) {
     $data = array(
       'message' => t('A comment has been created by Site Administration'),
       'level'  => 'warning',
@@ -228,7 +228,7 @@ function markaspot_log_comment_presave($comment) {
     );
   }
 
-  if (in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+  else if (in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
     $data = array(
       'message' => t('A comment has been created by City Administration'),
       'level'  => 'warning',
