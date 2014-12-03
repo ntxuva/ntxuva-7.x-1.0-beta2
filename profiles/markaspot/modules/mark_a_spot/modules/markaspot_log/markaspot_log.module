@@ -116,38 +116,33 @@ function markaspot_log_node_insert($node) {
   // Preparing Logging to Mas_log table (don't think of watchdog):
   global $user;
 
-  if (in_array('administrator', $user->roles)) {
+  if (!in_array('administrator', $user->roles) ||
+    !in_array('Management', $user->roles) || !in_array('City Admin', $user->roles)) {
     $data = array(
-      'message' => t('A comment has been created by Site Administration'),
-      'level' => 'warning',
-      'css_class' => 'comment',
+      'message' => t('The report has been created by Citizen'),
+      'level'  => 'danger',
+      'css_class'   => 'edit',
     );
   }
 
-  else if (in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
-    $data = array(
-      'message' => t('A comment has been created by City Administration'),
-      'level' => 'warning',
-      'css_class' => 'comment',
-    );
-  }
+  if (in_array('administrator', $user->roles) ||
+    in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
 
-  else if (in_array('Citizen', $user->roles) || in_array('anonymous user', $user->roles)) {
-    $data = array(
-      'message' => t('A comment has been created by Citizen'),
-      'level' => 'danger',
-      'css_class' => 'comment',
-    );
+    if (isset($node->nid)) {
+      $data = array(
+        'message' => t('The report has been edited/created by Administration'),
+        'level'  => 'warning',
+        'css_class'   => 'edit',
+      );
+    }
+    else {
+      $data = array(
+        'message' => t('The report has been created.'),
+        'level'  => 'danger',
+        'css_class'   => 'edit',
+      );
+    }
   }
-
-  else {
-    $data = array(
-      'message' => t('A comment has been created'),
-      'level' => 'danger',
-      'css_class' => 'comment',
-    );
-  }
-  
   $data = (object) $data;
 
   unset($data->nid);
@@ -225,7 +220,7 @@ function markaspot_log_comment_presave($comment) {
     );
   }
 
-  else if (in_array('administrator', $user->roles)) {
+  if (in_array('administrator', $user->roles)) {
     $data = array(
       'message' => t('A comment has been created by Site Administration'),
       'level'  => 'warning',
@@ -233,14 +228,14 @@ function markaspot_log_comment_presave($comment) {
     );
   }
 
-  else if (in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+  in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
     $data = array(
       'message' => t('A comment has been created by City Administration'),
       'level'  => 'warning',
       'css_class'   => 'comment',
     );
   }
-
+  
   else {
     $data = array(
       'message' => t('A comment has been created by Citizen'),
