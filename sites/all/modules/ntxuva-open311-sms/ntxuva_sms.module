@@ -25,9 +25,8 @@ function ntxuva_sms_menu() {
 
   return $items;
 }
-?>
 
-<?php
+
 /**
  * Ntxuva Open311 SMS config settings
  *
@@ -57,9 +56,7 @@ function ntxuva_sms_form($form, &$form_state) {
   );
   return system_settings_form($form);
 }
-?>
 
-<?php
 /**
  * Ntxuva Open311 SMS Handler
  *
@@ -95,6 +92,7 @@ function ntxuva_sms_handle() {
             ntxuva_sms_query_request();
             break;
           case "ajuda":
+            ntxuva_sms_send_help();
             break;
           default:
             ntxuva_sms_create_request();
@@ -103,9 +101,8 @@ function ntxuva_sms_handle() {
 
   return;
   }
-?>
 
-<?php
+
 /**
  * Deals with query from user
  *
@@ -144,13 +141,8 @@ function ntxuva_sms_handle() {
 
     // Send reply to user
     ntxuva_sms_reply($reply);
-
   }
-?>
 
-
-
-<?php
   function ntxuva_sms_create_request() {
     global $base_url;
     $ntxuva_default_endpoint = $base_url . "/georeport/v2/";
@@ -187,8 +179,6 @@ function ntxuva_sms_handle() {
       $lat = $loc->field_lat->value();
       $long = $loc->field_long->value();
       if(!empty($loc->field_address_string)) $address_string = $loc->field_address_string->value();
-
-
     }
 
     // not needed if I use service code instead of a SMS handle for category
@@ -232,7 +222,6 @@ function ntxuva_sms_handle() {
 
     $context  = stream_context_create( $options );
 
-
     // Send JSON POST to Submit issue
 
     $result = file_get_contents($url, false, $context);
@@ -250,14 +239,16 @@ function ntxuva_sms_handle() {
     // If not, apologize
     else {
       watchdog("ntxuva_sms", "Open311: could not create request"); // save request for debugging
-      ntxuva_sms_reply("Lamentavelmente, nao conseguimos introduzir o seu pedido, por favor tente mais tarde'.");
+      ntxuva_sms_reply("Lamentavelmente, nao conseguimos introduzir o seu pedido, por favor tente mais tarde.");
     }
 
     return;
   }
-?>
 
-<?php
+function ntxuva_sms_send_help() {
+  ntxuva_sms_reply("Para inserir um pedido: CODIGO_DE_OCORRENCIA COMENTARIO (OPCIONAL)\nPara consultar o estado de um pedido: ESTADO CODIGO_DE_PEDIDO\nSe tiver dificuldades com o sistema, entre em contacto connosco.");
+}
+
 function ntxuva_sms_reply($reply) {
 
   header("Content-Type: application/json");
@@ -266,7 +257,7 @@ function ntxuva_sms_reply($reply) {
       array('content' => $reply)
       )
   ));
+
   return;
   }
-
 ?>
