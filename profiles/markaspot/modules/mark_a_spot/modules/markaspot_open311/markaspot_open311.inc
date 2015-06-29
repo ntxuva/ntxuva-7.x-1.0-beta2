@@ -1,12 +1,4 @@
 <?php
-/*
-JB Changes
-- New functions to pass ntxuva_locations
-- Service_notice with user friendly status
-- Neighbourhood passed as a parameter of Open311 requests
-- DMGRSUS is passed as responsible of all requests
-*/
-
 /**
  * @file
  * Several methods for mapping drupal entities and georeport spedification.
@@ -25,75 +17,6 @@ function markaspot_open311_process_services_error($message, $code) {
   $error[] = array('code' => $code, 'description' => $message);
   services_error($message, $code, $error);
 }
-
-/**
- * Callback for showing locations for VoIP Drupal and USSD
- *
- * @return array
- *   $locations
- *   The locations where users can create
- */
-function markaspot_open311_ntxuva_locations() {
-
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'locations')
-    ->propertyCondition('status', 1)
-    ->addMetaData('account', user_load(1));
-  // Run the query as user 1.
-
-  $result = $query->execute();
-
-  $locations = FALSE;
-
-  if ($result) {
-    $nodes = array_keys($result['node']);
-    $nodes = node_load_multiple($nodes);
-
-    // Map all nodes and return:
-    foreach ($nodes as $node) {
-      $node->language = LANGUAGE_NONE;
-      $locations[] = markaspot_open311_location_map_request($node);
-
-    }
-  }
-  else {
-    markaspot_open311_process_services_error(t('No locations found'), 404);
-
-  }
-  return $locations;
-}
-
-/**
- * Mapping node to locations.
- *
- *
- * @return object
- *   $location as single request
- */
-function markaspot_open311_location_map_request($node) {
-
-  $location['location_id'] = $node->title;
-
-  $location['location_name'] = $node->field_location_name[$node->language][0]['value'];
-
-  $location['location_type'] = $node->field_location_type[$node->language][0]["value"];
-
-  $location['lat'] = $node->field_latitude[$node->language][0]['value'];
-
-  $location['long'] = $node->field_longitude[$node->language][0]['value'];
-
-  $location['district'] = $node->field_district[$node->language][0]['value'];
-
-  // $location['neighbourhoods'] = $node->field_neighbourhoods[$node->language][0]['value'];
-
-  foreach ($node->field_neighbourhoods[$node->language] as $nbh) {
-   $location['neighbourhoods'][] = $nbh['value'];
-  }
-
-  return $location;
-}
-
 
 /**
  * Callback for showing service discovery.
@@ -186,7 +109,7 @@ function markaspot_open311_requests_create($data) {
       $service_request[0]['service_request_id'] = $node->uuid;
     }
     else {
-      $service_request[0]['service_request_id'] = $node->id;
+      $service_request[0]['service_request_id'] = $node->nid;
     }
     $service_request[0]['service_notice'] = "";
   }
@@ -272,7 +195,7 @@ function markaspot_open311_requests_index($page, $parameters) {
     $query->pager($limit);
   }
   else {
-    $query->pager(10000);
+    $query->pager(50);
   }
 
   // Checking for service_code and map the code with taxonomy terms:
@@ -406,10 +329,10 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
 
   if (isset($node->body[$node->language][0]['value'])) $request['description'] = $node->body[$node->language][0]['value'];
 
-  $request['agency_responsible'] = "DMGRSUS";
-  $term['service_notice'] = taxonomy_term_load($node->field_status[$node->language][0]["tid"]);
-  $request['service_notice'] = $term['service_notice']->name;
+  $request['agency_responsible'] = NULL;
+  $request['service_notice'] = NULL;
 
+  if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['address_id'] = $node->field_neighbourhood[$node->language][0]['value'];
 
   $request['requested_datetime'] = date('c', $node->created);
   $request['updated_datetime'] = date('c', $node->changed);
@@ -426,12 +349,18 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
 
   // Media Url:
   if (isset($node->field_image[$node->language])) {
-    $image_uri = image_style_url("large", file_build_uri($node->field_image[$node->language][0]['filename']));
+    //Support other types of media
+    //$image_uri = image_style_url("large", file_build_uri($node->field_image[$node->language][0]['filename']));
+    $image_uri = file_create_url(file_build_uri($node->field_image[$node->language][0]['filename']));
     $request['media_url'] = $image_uri;
   }
 
   // Non Open311 compliant fields can be added here:
-    if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
+  if (isset($parameters['extension'])) {
+    $request['status_code'] = $node->field_status[$node->language][0]["tid"];
+    $term['status_sub'] = taxonomy_term_load($node->field_status[$node->language][0]["tid"]);
+    $request['status_sub'] = $term['status_sub']->name;
+  }
 
   return $request;
 }
