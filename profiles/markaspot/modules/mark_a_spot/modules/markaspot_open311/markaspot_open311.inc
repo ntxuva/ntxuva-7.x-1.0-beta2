@@ -88,7 +88,7 @@ function markaspot_open311_location_map_request($node) {
   // $location['neighbourhoods'] = $node->field_neighbourhoods[$node->language][0]['value'];
 
   foreach ($node->field_neighbourhoods[$node->language] as $nbh) {
-   $location['neighbourhoods'][] = $nbh['value'];
+    $location['neighbourhoods'][] = $nbh['value'];
   }
 
   return $location;
@@ -426,12 +426,14 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
 
   // Media Url:
   if (isset($node->field_image[$node->language])) {
-    $image_uri = image_style_url("large", file_build_uri($node->field_image[$node->language][0]['filename']));
+    //Support other types of media
+    //$image_uri = image_style_url("large", file_build_uri($node->field_image[$node->language][0]['filename']));
+    $image_uri = file_create_url(file_build_uri($node->field_image[$node->language][0]['filename']));
     $request['media_url'] = $image_uri;
   }
 
   // Non Open311 compliant fields can be added here:
-    if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
+  if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
 
   return $request;
 }
