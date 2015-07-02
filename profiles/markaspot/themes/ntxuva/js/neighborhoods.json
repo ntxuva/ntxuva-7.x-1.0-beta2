@@ -1,0 +1,40 @@
+{
+    "neighborhood-name-in-latin-format-1": {
+        "name": "neighborhood display name",
+        "points": {
+            "point-name-in-latin-format-1": {
+                "name": "point display name 1",
+                "phones": [
+                    "82123456",
+                    "82987652"
+                ]
+            },
+            "point-name-in-latin-format-2": {
+                "name": "point display name 2",
+                "phones": [
+                    "82123456",
+                    "82987652"
+                ]
+            }
+        }
+    },
+    "neighborhood-name-in-latin-format-2": {
+        "name": "neighborhood display name-2",
+        "points": {
+            "point-name-in-latin-format-1": {
+                "name": "point display name 3",
+                "phones": [
+                    "82123456",
+                    "82987652"
+                ]
+            },
+            "point-name-in-latin-format-2": {
+                "name": "point display name 4",
+                "phones": [
+                    "82123456",
+                    "82987652"
+                ]
+            }
+        }
+    }
+}

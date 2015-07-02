@@ -1197,7 +1197,13 @@ div.list a h3 {
   .panel-2col-stacked .panel-col-last .inside {
     margin: 0 0 1em 0;
   }
-
+  .form-item-field-category-und.form-item.radio label {
+  display: block;
+  padding-top: 100px;
+  height:100px;
+  background-position: center center;
+  text-align: center;
+  }
 }
 
 .tab-content {

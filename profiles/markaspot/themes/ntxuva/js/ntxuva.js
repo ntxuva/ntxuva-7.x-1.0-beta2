@@ -44,6 +44,206 @@ var lang_pt = {
 };
 
 (function($) {
+    var InqueriesReceive = {
+        inited: false,
+        replies: [],
+        getReplies: function(){
+            var _self = this;
+
+            $.ajax({
+                url: 'replies-url',
+                success: function(res){
+                    _self.inited = true;
+                    _self.replies = res;
+                    _self.parseReplies();
+                }
+            });
+        },
+        parseReplies: function(){
+            var _self = this;
+
+            if (!_self.inited)
+                return;
+
+            var repliesMarkup = [];
+
+            $.each(_self.replies, function(index, reply){
+                repliesMarkup.push('<tr>\
+                                    <td scope="row">' + reply.area + '</td>\
+                                    <td>' + reply.message + '</td>\
+                                    <td>' + reply.count_yes + '</td>\
+                                    <td>' + reply.count_no + '</td>\
+                                    <td>' + reply.date + '</td>\
+                                </tr>');
+            });
+
+            this.$receivedMessages.append(repliesMarkup.join(''));
+        },
+        hooks: function(){
+            var _self = this;
+
+            this.$receivedMessages = $('#received-messages');
+        },
+        init: function(){
+            var _self = this;
+
+            if (!$('.inquerito-page').length)
+                return;
+
+            this.hooks();
+            this.getReplies();
+        }
+    };
+    var InqueriesSent = {
+        inited: false,
+        messages: [],
+        neighborhoods: {},
+        getMessages: function(){
+            var _self = this;
+
+            $.ajax({
+                url: '/profiles/markaspot/themes/ntxuva/js/messages.json',
+                success: function(res){
+                    _self.messages = res;
+                    _self.getNeighborhoods();
+                }
+            });
+        },
+        getNeighborhoods: function(){
+            var _self = this;
+
+            $.ajax({
+                url: '/profiles/markaspot/themes/ntxuva/js/neighborhoods.json',
+                success: function(res){
+                    _self.hooks();
+                    _self.inited = true;
+                    _self.neighborhoods = res;
+                    _self.parseNeighborhoods();
+                    _self.parseMessages();
+                }
+            });
+        },
+        parseMessages: function(clear){
+            var _self = this;
+
+            if (!_self.inited)
+                return;
+
+            var messagesMarkup = ['<option selected>Select message</option>'];
+
+            if (!clear) {
+                $.each(_self.messages, function(index, message){
+                    messagesMarkup.push('<option value="' + encodeURIComponent(message) + '">' + message + '</option>');
+                });
+            }
+
+            this.$messagesSelect.html(messagesMarkup.join(''));
+        },
+        parseNeighborhoods: function(){
+            var _self = this;
+
+            if (!_self.inited)
+                return;
+
+            var neighbMarkup = ['<option selected>Select neighborhood</option>'];
+
+            $.each(_self.neighborhoods, function(index, neighborhood){
+                neighbMarkup.push('<option value="' + index + '">' + neighborhood.name + '</option>');
+            });
+
+            this.$neighSelect.html(neighbMarkup.join(''));
+        },
+        parsePoints: function(){
+            var _self = this;
+
+            if (!_self.inited)
+                return;
+
+            var neighborhood = _self.$neighSelect.val(),
+                pointsMarkup = ['<option selected>Select point</option>'];
+
+            if (!neighborhood || !_self.neighborhoods[neighborhood])
+                return;
+
+            $.each(_self.neighborhoods[neighborhood].points, function(index, points){
+                pointsMarkup.push('<option value="' + index + '">' + points.name + '</option>');
+            });
+
+            this.$pointsSelect.html(pointsMarkup.join(''));
+        },
+        parsePhones: function(){
+            var _self = this;
+
+            if (!_self.inited)
+                return;
+
+            var neighborhood = _self.$neighSelect.val(),
+                point        = _self.$pointsSelect.val(),
+                phones       = [];
+
+            if (!neighborhood || !point)
+                return;
+
+            if (!_self.neighborhoods[neighborhood] || !_self.neighborhoods[neighborhood].points[point])
+                return;
+
+            $.each(_self.neighborhoods[neighborhood].points[point].phones, function(index, phoneNum){
+                _self.sendSms(phoneNum);
+            });
+        },
+        sendSms: function(phoneNum){
+            var _self   = this,
+                message = this.$messagesSelect.val();
+
+            if (!phoneNum || !message)
+                return;
+alert('Message send to ' + phoneNum + ' with message ' + message);
+return;
+
+            $.ajax({
+                url: 'http://wasp.sourcecode.solutions:8080/MessagingGW/sendsms?from=mopa&to=' + phoneNum + '&text=' + message,
+                success: function(res){
+                    alert('Message send to ' + phoneNum);
+                }
+            });
+        },
+        hooks: function(){
+            var _self = this;
+
+            this.$neighSelect    = $('#bairros-form-select');
+            this.$pointsSelect   = $('#rotas-form-select');
+            this.$messagesSelect = $('#messages-form-select');
+            this.$sendSms        = $('#send-sms-button');
+
+            this.$neighSelect.on({
+                change: function(event){
+                    _self.parsePoints();
+                    // _self.parseMessages(true);
+                }
+            });
+
+            this.$pointsSelect.on({
+                change: function(event){
+                    // _self.parseMessages();
+                }
+            });
+
+            this.$sendSms.on({
+                click: function(){
+                    _self.parsePhones();
+                }
+            });
+        },
+        init: function(){
+            var _self = this;
+
+            if (!$('.inquerito-page').length)
+                return;
+
+            this.getMessages();
+        }
+    };
+
     var HomePageStats = {
         parse: function(){
             var serviceNames  = {},
@@ -81,7 +281,7 @@ var lang_pt = {
                         freqService = {'name': service_name, 'count': serviceNames[service_name]};
                 }
 
-                var location_name = $('address_id', request).text().split(',')[0];
+                var location_name = $('neighbourhood', request).text().split(',')[0];
 
                 if (location_name) {
                     if (!locationNames[location_name])
@@ -149,8 +349,8 @@ var lang_pt = {
 
             $('request', this.res).each(function(index, request){
                 var service_name = $('service_name', request).text(),
-                    status_name  = $('status', request).text(),
-                    address_name = $('address_id', request).text(),
+                    status_name  = $('service_notice', request).text(),
+                    address_name = $('neighbourhood', request).text(),
                     req_datetime = $('requested_datetime', request).text(),
 
                     serviceNameEncode = encodeURIComponent(service_name),
@@ -357,8 +557,8 @@ var lang_pt = {
 
             function parseRequestData(reqData, arrayIndex){
                 serviceName = $('service_name', reqData).text();
-                statusName  = $('status', reqData).text();
-                addressName = $('address_id', reqData).text();
+                statusName  = $('service_notice', reqData).text();
+                addressName = $('neighbourhood', reqData).text();
 
                 serviceNameEncode = encodeURIComponent(serviceName);
                 statusNameEncode  = encodeURIComponent(statusName);
@@ -561,6 +761,7 @@ var lang_pt = {
     $(document).ready(function(){
         HomePageStats.init();
         ChartsPage.init();
+        InqueriesSent.init();
 
         $('.field-label').addClass('label');
 

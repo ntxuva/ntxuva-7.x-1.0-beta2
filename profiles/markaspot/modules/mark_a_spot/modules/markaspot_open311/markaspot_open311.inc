@@ -195,7 +195,7 @@ function markaspot_open311_requests_index($page, $parameters) {
     $query->pager($limit);
   }
   else {
-    $query->pager(50);
+    $query->pager(10000);
   }
 
   // Checking for service_code and map the code with taxonomy terms:
@@ -329,10 +329,10 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
 
   if (isset($node->body[$node->language][0]['value'])) $request['description'] = $node->body[$node->language][0]['value'];
 
-  $request['agency_responsible'] = NULL;
-  $request['service_notice'] = NULL;
+  $request['agency_responsible'] = "DMGRSUS";
+  $term['service_notice'] = taxonomy_term_load($node->field_status[$node->language][0]["tid"]);
+  $request['service_notice'] = $term['service_notice']->name;
 
-  if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['address_id'] = $node->field_neighbourhood[$node->language][0]['value'];
 
   $request['requested_datetime'] = date('c', $node->created);
   $request['updated_datetime'] = date('c', $node->changed);
@@ -354,11 +354,7 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
   }
 
   // Non Open311 compliant fields can be added here:
-  if (isset($parameters['extension'])) {
-    $request['status_code'] = $node->field_status[$node->language][0]["tid"];
-    $term['status_sub'] = taxonomy_term_load($node->field_status[$node->language][0]["tid"]);
-    $request['status_sub'] = $term['status_sub']->name;
-  }
+    if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
 
   return $request;
 }

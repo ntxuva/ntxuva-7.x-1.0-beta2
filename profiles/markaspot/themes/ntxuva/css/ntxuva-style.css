@@ -6204,6 +6204,10 @@ fieldset .panel-heading a.panel-title:hover {
   background-image: url(../images/report5a.png);
   background-repeat: no-repeat;
 }
+.form-item-field-category-und.radio:nth-child(6) label {
+  background-image: url(../images/report6a.png);
+  background-repeat: no-repeat;
+}
 
 .form-item-field-category-und.radio.checked:nth-child(1) label {
   background-image: url(../images/report1b.png);
@@ -6227,6 +6231,11 @@ fieldset .panel-heading a.panel-title:hover {
 }
 .form-item-field-category-und.radio.checked:nth-child(5) label {
   background-image: url(../images/report5b.png);
+  background-repeat: no-repeat;
+  color: #F15722;
+}
+.form-item-field-category-und.radio.checked:nth-child(6) label {
+  background-image: url(../images/report6b.png);
   background-repeat: no-repeat;
   color: #F15722;
 }
