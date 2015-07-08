@@ -197,8 +197,6 @@ var lang_pt = {
 
             if (!phoneNum || !message)
                 return;
-alert('Message send to ' + phoneNum + ' with message ' + message);
-return;
 
             $.ajax({
                 url: 'http://wasp.sourcecode.solutions:8080/MessagingGW/sendsms?from=mopa&to=' + phoneNum + '&text=' + message,
