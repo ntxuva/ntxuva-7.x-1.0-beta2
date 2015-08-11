@@ -291,36 +291,6 @@ function markaspot_open311_services_resources() {
         ),
       ),
     ),
-    'index_super' => array(
-      'help' => 'Retrieves a listing of requests with phone numbers',
-      'file' => array('file' => 'inc', 'module' => 'markaspot_open311'),
-      // Callback in inc.file
-      'callback' => 'markaspot_open311_requests_index_super',
-      'access callback' => 'user_access',
-      'access arguments' => array('access content'),
-      'access arguments append' => FALSE,
-      'args' => array(
-        array(
-          'name' => 'page',
-          'type' => 'int',
-          'description' => '',
-          'source' => array(
-            'param' => 'page',
-          ),
-          'optional' => TRUE,
-          'default value' => 0,
-        ),
-        array(
-          'name' => 'parameters',
-          'type' => 'array',
-          'description' => '',
-          'source' => 'param',
-          'optional' => TRUE,
-          'default value' => array(),
-        ),
-      ),
-    ),
-  ),
     'services' => array(
       'retrieve' => array(
         'help' => 'Retrieves a service definition by servicecode (not yet implemented)',
