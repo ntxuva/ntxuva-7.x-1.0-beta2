@@ -421,7 +421,7 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
     $request['address'] = $node->field_address[$node->language][0]['value'];
   }
 
-  if (isset($node->field_address_id[$node->language][0]['value']))  $request->address_id = $node->field_address_id[$node->language][0]['value'];
+  if (isset($node->field_address_id[$node->language][0]['value']))  $request['address_id']  = $node->field_address_id[$node->language][0]['value'];
 
   $request['zipcode'] = NULL;
 
@@ -498,7 +498,7 @@ function markaspot_open311_request_map_node($request) {
   $node->field_geo[$node->language][0]['lat'] = $request->lat;
   $node->field_geo[$node->language][0]['lng'] = $request->long;
 
-  if (isset($request->location_id)) $node->field_address_id[$node->language][0]['value'] = $request->location_id; // Non Open311 Compliant, solves problem of intregation with USSD 
+  if (isset($request->location_id)) $node->field_address_id[$node->language][0]['value'] = $request->location_id; // Non Open311 Compliant, solves problem of intregation with USSD
   if (isset($request->address_id)) $node->field_address_id[$node->language][0]['value'] = $request->address_id;
 
   if (isset($request->email)) $node->field_e_mail[$node->language][0]['value'] = $request->email;
