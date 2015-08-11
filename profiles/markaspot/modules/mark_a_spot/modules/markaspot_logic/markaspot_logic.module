@@ -29,7 +29,9 @@ function markaspot_logic_validate($form, &$form_state) {
 
   $mail = $form_state['values']['field_e_mail'][LANGUAGE_NONE][0]['value'];
 
-  if (isset($mail) && !valid_email_address($mail)) {
+  $phone = $form_state['values']['field_phone'][LANGUAGE_NONE][0]['value'];
+
+  if (!empty($mail) && !valid_email_address($mail)) {
     form_set_error('field_e_mail', t('Please enter a valid e-mail address.'));
   }
 
