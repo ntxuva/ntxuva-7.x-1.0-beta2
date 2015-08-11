@@ -37,7 +37,7 @@ Date.prototype.getMonthWeek = function(){
     return Math.ceil((this.getDate() + firstDay)/7);
 };
 
-Chart.defaults.global.animation = false;
+// Chart.defaults.global.animation = false;
 
 var lang_pt = {
     "months": ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
@@ -51,10 +51,12 @@ var lang_pt = {
             var _self = this;
 
             $.ajax({
-                url: 'replies-url',
+                // url: 'replies-url',
+                url: 'http://demo.ntxuva.org:5000/survey',
+                method: 'GET',
                 success: function(res){
                     _self.inited = true;
-                    _self.replies = res;
+                    _self.replies = $.parseJSON(res) || res;
                     _self.parseReplies();
                 }
             });
@@ -70,7 +72,7 @@ var lang_pt = {
             $.each(_self.replies, function(index, reply){
                 repliesMarkup.push('<tr>\
                                     <td scope="row">' + reply.area + '</td>\
-                                    <td>' + reply.message + '</td>\
+                                    <td>' + unescape(reply.message) + '</td>\
                                     <td>' + reply.count_yes + '</td>\
                                     <td>' + reply.count_no + '</td>\
                                     <td>' + reply.date + '</td>\
@@ -94,31 +96,34 @@ var lang_pt = {
             this.getReplies();
         }
     };
+    
     var InqueriesSent = {
         inited: false,
         messages: [],
-        neighborhoods: {},
+        districts: {},
         getMessages: function(){
             var _self = this;
 
             $.ajax({
                 url: '/profiles/markaspot/themes/ntxuva/js/messages.json',
+                //url: 'messages_shade.json',
                 success: function(res){
-                    _self.messages = res;
-                    _self.getNeighborhoods();
+                    _self.messages = $.parseJSON(res) || res;
+                    _self.getNeighbourhoods();
                 }
             });
         },
-        getNeighborhoods: function(){
+        getNeighbourhoods: function(){
             var _self = this;
 
             $.ajax({
-                url: '/profiles/markaspot/themes/ntxuva/js/neighborhoods.json',
+                url: '/profiles/markaspot/themes/ntxuva/js/neighbourhoods.json',
+                //url: 'neighbourhoods_shade.json',
                 success: function(res){
                     _self.hooks();
                     _self.inited = true;
-                    _self.neighborhoods = res;
-                    _self.parseNeighborhoods();
+                    _self.districts = $.parseJSON(res) || res;
+                    _self.parseDistricts();
                     _self.parseMessages();
                 }
             });
@@ -139,19 +144,38 @@ var lang_pt = {
 
             this.$messagesSelect.html(messagesMarkup.join(''));
         },
-        parseNeighborhoods: function(){
+        parseDistricts: function(){
             var _self = this;
 
             if (!_self.inited)
                 return;
 
-            var neighbMarkup = ['<option selected>Select neighborhood</option>'];
-
-            $.each(_self.neighborhoods, function(index, neighborhood){
-                neighbMarkup.push('<option value="' + index + '">' + neighborhood.name + '</option>');
+            var districtMarkup = ['<option selected>Select district</option>'];
+            console.log(typeof _self.districts);
+            console.log(_self.districts);
+            $.each(_self.districts, function(index, district){
+                districtMarkup.push('<option value="' + district.id + '">' + district.name + '</option>');
             });
 
-            this.$neighSelect.html(neighbMarkup.join(''));
+            this.$districtSelect.html(districtMarkup.join(''));
+        },
+        parseNeighbourhoods: function(){
+            var _self = this;
+
+            if (!_self.inited)
+                return;
+
+            var district = _self.$districtSelect.val(),
+                neighbourhoodMarkup = ['<option selected>Select neighbourhood</option>'];
+
+            if (!district || !_self.districts[district-1])
+                return;
+
+            $.each(_self.districts[district-1].neighbourhoods, function(index, neighbourhood){
+                neighbourhoodMarkup.push('<option value="' + neighbourhood.id + '">' + neighbourhood.name + '</option>');
+            });
+
+            this.$neighbourhoodSelect.html(neighbourhoodMarkup.join(''));
         },
         parsePoints: function(){
             var _self = this;
@@ -159,61 +183,98 @@ var lang_pt = {
             if (!_self.inited)
                 return;
 
-            var neighborhood = _self.$neighSelect.val(),
+            var district = _self.$districtSelect.val(),
+                neighbourhood = _self.$neighbourhoodSelect.val(),
                 pointsMarkup = ['<option selected>Select point</option>'];
 
-            if (!neighborhood || !_self.neighborhoods[neighborhood])
+            if (!district || !neighbourhood || !_self.districts[district-1].neighbourhoods[neighbourhood-1]){
                 return;
+            }
 
-            $.each(_self.neighborhoods[neighborhood].points, function(index, points){
-                pointsMarkup.push('<option value="' + index + '">' + points.name + '</option>');
+            $.each(_self.districts[district-1].neighbourhoods[neighbourhood-1].points, function(index, point){
+                pointsMarkup.push('<option value="' + point.id + '">' + point.name + '</option>');
             });
 
             this.$pointsSelect.html(pointsMarkup.join(''));
         },
         parsePhones: function(){
             var _self = this;
-
+            
             if (!_self.inited)
                 return;
 
-            var neighborhood = _self.$neighSelect.val(),
+            var district = _self.$districtSelect.val(),
+                neighbourhood = _self.$neighbourhoodSelect.val(),
                 point        = _self.$pointsSelect.val(),
                 phones       = [];
 
-            if (!neighborhood || !point)
+            if (!district || !neighbourhood || !point){
+                console.log("No district, neighbourhood or point, ", "district: ", district, ", neighbourhoods: ", neighbourhood, ", point:", point);
                 return;
-
-            if (!_self.neighborhoods[neighborhood] || !_self.neighborhoods[neighborhood].points[point])
+            }
+            
+            if (!_self.districts[district-1].neighbourhoods[neighbourhood-1] || !_self.districts[district-1].neighbourhoods[neighbourhood-1].points[point-1]){
+                console.log("Neighborhood", _self.districts[district-1].neighbourhoods[neighbourhood-1]);
+                console.log("Point", _self.districts[district-1].neighbourhoods[neighbourhood-1].points[point-1]);
                 return;
+            }
 
-            $.each(_self.neighborhoods[neighborhood].points[point].phones, function(index, phoneNum){
-                _self.sendSms(phoneNum);
+            $.each(_self.districts[district-1].neighbourhoods[neighbourhood-1].points[point-1].monitors, function(index, monitor){
+                _self.sendSms(monitor.phone);
             });
         },
         sendSms: function(phoneNum){
             var _self   = this,
                 message = this.$messagesSelect.val();
 
-            if (!phoneNum || !message)
+            if (!phoneNum || !message){
+                alert("no phoneNum or message. phoneNum: ", phoneNum, ", message: ", message);
                 return;
+            }
+
+
+            var district = _self.$districtSelect.val(),
+                neighbourhood = _self.$neighbourhoodSelect.val(),
+                point        = _self.$pointsSelect.val();
+
+            var _neighbourhood = _self.districts[district-1].neighbourhoods[neighbourhood-1].name,
+                _point = _self.districts[district-1].neighbourhoods[neighbourhood-1].points[point].name;
 
             $.ajax({
-                url: 'http://wasp.sourcecode.solutions:8080/MessagingGW/sendsms?from=mopa&to=' + phoneNum + '&text=' + message,
+                // url: 'http://wasp.sourcecode.solutions:8080/MessagingGW/sendsms?from=mopa&to=' + phoneNum + '&text=' + message,
+                url: 'http://demo.ntxuva.org:5000/survey',
+                type: 'POST',
+                data: {
+                    'neighbourhood': _neighbourhood,
+                    'quarter': _point,
+                    'question_id': message,
+                    'question' : message,
+                    'to': phoneNum
+                },
                 success: function(res){
                     alert('Message send to ' + phoneNum);
+                },
+                error: function(xhr, textStatus, thrownError){
+                    alert("Error sending message ", textStatus);
                 }
             });
         },
         hooks: function(){
             var _self = this;
-
-            this.$neighSelect    = $('#bairros-form-select');
+            this.$districtSelect = $('#districtos-form-select');
+            this.$neighbourhoodSelect    = $('#bairros-form-select');
             this.$pointsSelect   = $('#rotas-form-select');
             this.$messagesSelect = $('#messages-form-select');
             this.$sendSms        = $('#send-sms-button');
 
-            this.$neighSelect.on({
+            this.$districtSelect.on({
+                change: function(event){
+                    _self.parseNeighbourhoods();
+                    _self.parsePoints();
+                }
+            });
+
+            this.$neighbourhoodSelect.on({
                 change: function(event){
                     _self.parsePoints();
                     // _self.parseMessages(true);
@@ -760,6 +821,7 @@ var lang_pt = {
         HomePageStats.init();
         ChartsPage.init();
         InqueriesSent.init();
+        InqueriesReceive.init();
 
         $('.field-label').addClass('label');
 

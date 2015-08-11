@@ -9,9 +9,6 @@
   <div class="navbar navbar-inverse navbar-static-top" role="navigation">
     <div class="container-fluid secondary">
       <div class="navbar-header">
-        <?php if ($logo): ?>
-          
-        <?php endif; ?>
 
         <?php if (!empty($site_name)): ?>
           <a class="name navbar-brand secondary" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>"></a>
@@ -57,6 +54,12 @@
                         <span class="icon-categorias"></span>
                     </div>
                     <div class="section-content">
+                        <div class="form-select-element">
+                            <label class="form-label label-category">Districtos</label>
+                            <select id="districtos-form-select" name="category-form-select" class="form-control form-select">
+                                <option value="">Escolher Districto</option>
+                            </select>
+                        </div>
                         <div class="form-select-element">
                             <label class="form-label label-category">Bairros</label>
                             <select id="bairros-form-select" name="category-form-select" class="form-control form-select">
@@ -112,5 +115,5 @@
     </div>
 </div>
 <footer class="footer navbar-inverse navbar-fixed-bottom">
-  <?php print render($page['footer']); ?>
+  <?php /*print render($page['footer']); */?>
 </footer>
