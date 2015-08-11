@@ -73,7 +73,7 @@
           // Drupal.geolocation.maps[i].setView(new L.LatLng(result.lat, result.lon));
           // Drupal.geolocation.setMapMarker(new L.LatLng(result.lat , result.lon),i);
 
-          document.getElementById("edit-field-address_id").style.visibility = "hidden";
+          document.getElementById("edit-field-address-id").style.visibility = "hidden";
         }
         else {
           alert(Drupal.t("Sorry an address cannot be found"));
