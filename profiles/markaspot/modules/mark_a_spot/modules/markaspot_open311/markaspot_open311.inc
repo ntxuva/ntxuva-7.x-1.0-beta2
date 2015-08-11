@@ -231,7 +231,6 @@ function markaspot_open311_requests_retrieve($request_id, $parameters) {
   else {
     $node = node_load($request_id);
     $node->language = LANGUAGE_NONE;
-
   }
 
   if ($node == TRUE) {
@@ -382,7 +381,7 @@ function markaspot_open311_services_retrieve($service_code) {
  *   $request as single request
  */
 
- /* JB - Changed to include address_id */
+ /* JB - Changed to include address_id and phone */
 
 function markaspot_open311_node_map_request($node, $status, $parameters) {
   if (module_exists('markaspot_uuid')) {
@@ -407,8 +406,6 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
   }
 
   if (isset($node->body[$node->language][0]['value'])) $request['description'] = $node->body[$node->language][0]['value'];
-
-  if (isset($node->field_phone[$node->language][0]['value'])) $request['phone'] = $node->field_phone[$node->language][0]['value'];
 
   $request['agency_responsible'] = "DMGRSUS";
   $term['service_notice'] = taxonomy_term_load($node->field_status[$node->language][0]["tid"]);
@@ -441,6 +438,10 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
 
   // Non Open311 compliant fields can be added here:
   if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
+
+  if (isset($parameters['phone_key'])) if ($parameters['phone_key']==666554 && isset($node->field_phone[$node->language][0]['value'])) $request['phone'] = $node->field_phone[$node->language][0]['value'];
+
+
 
   return $request;
 }
