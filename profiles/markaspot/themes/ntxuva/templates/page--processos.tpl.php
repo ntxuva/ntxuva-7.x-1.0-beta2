@@ -101,7 +101,7 @@ display: none;
                     	<span id="search_concept">Tipo de Processo</span> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                      <li><a href="#11">Camião não recolheu o contentor</a></li>
+                      <li><a href="#11">Contentor não recolhido</a></li>
                       <li><a href="#10">Contentor a Arder</a></li>
                       <li><a href="#12">Lixo fora do contentor</a></li>
                       <li><a href="#13">Tchova não passou</a></li>
@@ -116,10 +116,11 @@ display: none;
                     	<span id="search_concept1">Estado do Processo</span> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu1">
-                      <li><a href="#5">Novos</a></li>
-                      <li><a href="#6">Em Progresso</a></li>
+                      <li><a href="#5">Registados</a></li>
+                      <li><a href="#6">Em Processo</a></li>
                       <li><a href="#7">Resolvidos</a></li>
                       <li><a href="#8">Arquivados</a></li>
+                      <li><a href="#74">Invalidos</a></li>
                       <li class="divider"></li>
                       <li><a href="#All">Tudo</a></li>
                     </ul>
