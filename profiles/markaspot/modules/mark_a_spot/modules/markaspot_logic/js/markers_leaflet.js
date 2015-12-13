@@ -41,12 +41,12 @@ var markerLayer, queryString;
 
     switch (pathId[0]) {
       case "map":
-        readData(2, arg, "All", "All");
+        readData(2, arg, "All", "5&field_status_tid[]=6");
         arg = '';
         break;
 
       case "list":
-        readData(2, "list", "All", "All");
+        readData(2, "list", "All", "5&field_status_tid[]=6");
         break;
 
       case "admin":
@@ -118,7 +118,7 @@ var markerLayer, queryString;
         url = Drupal.settings.basePath + 'reports/json/' + arg;
       } else if (uri[0].search('map') != -1 || uri[0].search('home') != -1) {
         // map view
-        url = Drupal.settings.basePath + 'reports/json/map?' + 'field_category_tid=' + categoryCond + '&field_status_tid=' + statusCond;
+        url = Drupal.settings.basePath + 'reports/json/map?' + 'field_category_tid=' + categoryCond + '&field_status_tid[]=' + statusCond;
       } else {
         url = Drupal.settings.basePath + 'reports/json?' + uri[1];
         categoryCond = mas.params.field_category_tid;

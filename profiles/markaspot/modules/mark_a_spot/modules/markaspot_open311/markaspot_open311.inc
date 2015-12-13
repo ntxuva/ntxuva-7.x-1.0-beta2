@@ -87,8 +87,8 @@ function markaspot_open311_location_map_request($node) {
 
   // $location['neighbourhoods'] = $node->field_neighbourhoods[$node->language][0]['value'];
 
-  foreach ($node->field_neighbourhoods[$node->language] as $nbh) {
-    $location['neighbourhoods'][] = $nbh['value'];
+  foreach ($node->field_neighbourhood[$node->language] as $nbh) {
+    $location['neighbourhood'][] = $nbh['value'];
   }
 
   return $location;

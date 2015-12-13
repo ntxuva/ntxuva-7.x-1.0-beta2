@@ -35,6 +35,11 @@ function markaspot_logic_validate($form, &$form_state) {
     form_set_error('field_e_mail', t('Please enter a valid e-mail address.'));
   }
 
+
+  if (empty($mail) && empty($phone)) {
+    form_set_error('field_e_mail', t('Deve introduzir pelo menos um telefone ou um e-mail para que o possamos contactar quando o problema for resolvido.'));
+  }
+
   $validate_cities = explode(",", variable_get('markaspot_logic_city'));
 
   // Transform cities into a readable string.
