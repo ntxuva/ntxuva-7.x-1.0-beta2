@@ -3840,7 +3840,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .container-fluid > .navbar-header,
 .container > .navbar-collapse,
 .container-fluid > .navbar-collapse {
-  margin-right: -15px;
+  margin-right: 5px;
   margin-left: -15px;
 }
 @media (min-width: 768px) {
@@ -3923,7 +3923,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   padding: 9px 10px;
   margin-top: 8px;
   margin-bottom: 4px;
-  background-color: transparent;
+  background-color: grey;
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -4186,7 +4186,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   color: #333333;
 }
 .navbar-inverse .navbar-brand {
-  margin-left: -15px;
+  margin-left: 5px;
 	background: url('../logo.png') no-repeat 0 0;
 	width: 187px;
 	height: 50px;

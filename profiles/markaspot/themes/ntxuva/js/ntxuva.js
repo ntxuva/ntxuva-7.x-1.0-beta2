@@ -365,7 +365,7 @@ var lang_pt = {
                 return;
 
             $.ajax({
-                url: '/georeport/v2/requests.xml',
+                url: '/georeport/v2/requests.xml?start_date=2016-01-01',
                 success: function(res){
                     _self.res = res;
                     _self.parse();
@@ -852,7 +852,7 @@ var lang_pt = {
                 }
             );
 
-            if (linkHash.indexOf('3--') > -1 || linkHash.indexOf('---fotografia') > -1)  {
+            if (linkHash.indexOf('4--') > -1 || linkHash.indexOf('---fotografia') > -1)  {
                 $('.node-report-form #edit-submit').html(Drupal.t('Save'));
             }
             else {
@@ -886,9 +886,22 @@ var lang_pt = {
                     window.location.hash = hash;
                 });
                 document.getElementById("edit-field-geo-und-0-address-field").disabled = false;
+            }
+         else if (currentHash.indexOf('3--') > -1 || currentHash.indexOf('---contacto') > -1) {
+                $('a:contains(4.)').tab('show');
+
+                var hash = $('a:contains(4.)').attr('href');
+                // animate
+                $('html, body').animate({
+                    scrollTop: $(hash).offset().top - 30
+                    }, 600, function(){
+                    window.location.hash = hash;
+                });
+                document.getElementById("edit-field-geo-und-0-address-field").disabled = false;
                 $('#edit-submit').html(Drupal.t('Save'));
             }
-            else if (currentHash.indexOf('3--') > -1 || currentHash.indexOf('---fotografia') > -1) {
+
+            else if (currentHash.indexOf('4--') > -1 || currentHash.indexOf('---fotografia') > -1) {
                 $('form').unbind('submit').submit();
             }
         });

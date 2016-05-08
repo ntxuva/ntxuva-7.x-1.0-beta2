@@ -29,6 +29,10 @@
     $('#geolocation-lng-' + i + ' input').attr('value', latLng.lng);
     $('#geolocation-lng-item-' + i + ' .geolocation-lng-item-value').html(latLng.lng);
 
+    if (document.getElementById('edit-field-validatedcmm') !=null) { 
+      document.getElementById('edit-field-validatedcmm').style.visibility = "hidden";
+    }
+
     // Update the address field
     if ((op == 'marker' || op == 'geocoder')) {
 

@@ -149,7 +149,7 @@ class VoipCall {
    * most voip servers. This function also handles SIP addresses.
    *  Examples:
    *   16174890199 => +16174890199
-   *   6174890199 => +16174890199
+   *   0016174890199 => +16174890199
    *   +551196664471 => +551196664471
    *   +55 (11) 9666.4471 => +551196664471
    *   55 (11) 9666.4471 => +551196664471
@@ -397,6 +397,39 @@ class VoipCall {
 
   public function getTextStatus() {
     return $this->call_data->text_status;
+  }
+  public function getTextStatusDescription() {
+    $description = NULL;
+    $status = $this->getTextStatus();
+    if (!$status) {
+      $description = t('Not set.');
+    }
+    else {
+      switch ($status) {
+        default:
+          $module = "voipcall";
+          $msg = t('Invalid status passed to getTextStatusDescription(): @status.');
+          $params = array('@status' => $status);
+          $reason = $this->report_error($module, $msg, $params);
+          break;
+        case VoipCall::TEXT_FAILED:
+          $description = t('SMS sending failed.');
+          break;
+        case VoipCall::TEXT_INVALID:
+          $description = t('Invalid SMS number.');
+          break;
+        case VoipCall::TEXT_NOT_SENT:
+          $description = t('SMS not sent.');
+          break;
+        case VoipCall::TEXT_SENDING:
+          $description = t('In progress.');
+          break;
+        case VoipCall::TEXT_SENT:
+          $description = t('SMS sent.');
+          break;
+      }
+    }
+    return $description;
   }
 
   public function setTextStatus($status) {

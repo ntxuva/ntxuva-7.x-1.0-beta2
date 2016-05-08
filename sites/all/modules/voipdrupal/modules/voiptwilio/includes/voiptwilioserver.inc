@@ -268,6 +268,8 @@ class VoipTwilioServer extends VoipServer {
     if ($response->IsError) {
       // differentiate between processing errors and higher-level errors
       $twilio_error_code = (string) $response->ResponseXml->RestException->Code;
+
+      watchdog('debug', $twilio_error_code);
       switch ($twilio_error_code) {
         // the following codes are listed in
         //   http://www.twilio.com/docs/errors/reference/
@@ -277,6 +279,7 @@ class VoipTwilioServer extends VoipServer {
           $error_msg = t('Invalid caller id value');
           $voipcall->setErrorMessage($error_msg);
           $voipcall->setCallStatus(VoipCall::ERROR);
+          $voipcall->setTextStatus(VoipCall::TEXT_FAILED);
           $voipcall->save();
           break;
         case '13223': // Dial: Invalid phone number format
@@ -284,9 +287,12 @@ class VoipTwilioServer extends VoipServer {
         case '21211': // Invalid Called Phone Number
         case '21213': // Caller phone number is required
         case '21401': // Invalid Phone Number
+        case '21614': // Not a mobile number
           $error_msg = t('Invalid phone number');
           $voipcall->setErrorMessage($error_msg);
-          $voipcall->setCallStatus(VoipCall::ERROR);
+          //$voipcall->setCallStatus(VoipCall::ERROR);
+          $voipcall->setCallStatus(VoipCall::INVALID);
+          $voipcall->setTextStatus(VoipCall::TEXT_INVALID);
           $voipcall->save();
           break;
         case '13225': // Dial: Forbidden phone number
@@ -294,6 +300,7 @@ class VoipTwilioServer extends VoipServer {
           $error_msg = t('Forbidden phone number');
           $voipcall->setErrorMessage($error_msg);
           $voipcall->setCallStatus(VoipCall::ERROR);
+          $voipcall->setTextStatus(VoipCall::TEXT_FAILED);
           $voipcall->save();
           break;
         default: // processing error
@@ -303,7 +310,9 @@ class VoipTwilioServer extends VoipServer {
             '@twilio_code' => $twilio_error_code,
             '@twilio_msg' => $twilio_error_msg
           );
+          $voipcall->setTextStatus(VoipCall::TEXT_FAILED);
           $voipcall->report_error('voiptwilio', $msg, $params);
+
           break;
       }
       $rc = FALSE;

@@ -661,7 +661,7 @@ span.marker-category {
 .welcome-text.well {
   margin: 4px 0;
   background: none;
-  height: 140px;
+  height: 0px;
 }
 
 .region.region-sidebar-second h3 {
@@ -1041,8 +1041,8 @@ div.list a h3 {
   }
 
   .navbar-wrapper .navbar {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left:  15px;
+    padding-right: 0px;
   }
 
   #edit-submit {

@@ -205,7 +205,7 @@ function _voiptwilio_call_handler($twilio_action, $cid = NULL) {
   // response with the recording data AND CallStatus set to 'completed'. Once that is done,
   // Twilio calls our process_hangup url to inform, once again, that the call has been hanged.
 
-  if ($twilio_action == 'process_sms_callback'
+  if (     $twilio_action == 'process_sms_callback'
         || $twilio_action == 'process_inbound_text'
         || $twilio_action == 'process_sms_framework'
         || $twilio_action == 'process_send_sms'
@@ -307,6 +307,7 @@ function _voiptwilio_call_handler($twilio_action, $cid = NULL) {
       case 'process_send_sms':
       case 'process_sms_callback':
         $call = _voiptwilio_process_sms_response($call, $_REQUEST);
+        $call->setEndTime();
         if (strtolower($call->getCallChannel()) == 'text') {
           // update sms status
           $call->save();
@@ -1063,7 +1064,7 @@ function _voiptwilio_process_dial_response($call, $request) {
 /**
  * Process the response to a 'send text' script command
  */
-function _voiptwilio_process_sms_response($call, $request) {
+function  _voiptwilio_process_sms_response($call, $request) {
   $cid = $call->getCid();
   $sms_status_tmp = $request['SmsStatus'];
   switch ($sms_status_tmp) {

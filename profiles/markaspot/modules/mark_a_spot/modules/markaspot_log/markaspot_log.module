@@ -125,12 +125,20 @@ function markaspot_log_node_insert($node) {
     );
   }
 
-  if (in_array('administrator', $user->roles) ||
-    in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+  if (in_array('administrator', $user->roles)) {
 
     if (isset($node->nid)) {
       $data = array(
-        'message' => t('The report has been edited/created by Administration'),
+        'message' => t('The report has been edited by Content Management Team.'),
+        'level'  => 'warning',
+        'css_class'   => 'edit',
+      );
+    }
+  }
+  if (in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+    if (isset($node->nid)) {
+      $data = array(
+        'message' => t('The report has been edited/created by the Municipality.'),
         'level'  => 'warning',
         'css_class'   => 'edit',
       );
@@ -164,23 +172,31 @@ function markaspot_log_node_update($node) {
   $data = new stdClass();
   global $user;
 
-  if (!in_array('Management', $user->roles) || !in_array('administrator', $user->roles) && $node->type == 'report') {
-
+  if (!in_array('Management', $user->roles) && !in_array('administrator', $user->roles)) {
     if ($node->nid) {
       $data = array(
-        'message' => t('The report has been edited by Citizen'),
+        'message' => t('The report has been edited by the Citizen'),
         'level'  => 'warning',
         'css_class'   => 'edit',
       );
     }
   }
-
-  if (in_array('administrator', $user->roles) ||
-    in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+  else if (in_array('administrator', $user->roles)) {
 
     if ($node->nid) {
       $data = array(
-        'message' => t('The report has been edited by City Administration'),
+        'message' => t('The report has been updated by the Content Management Team.'),
+        'level'  => 'success',
+        'css_class'   => 'check',
+      );
+    }
+  }
+
+  else if (in_array('Management', $user->roles) || in_array('City Admin', $user->roles)) {
+
+    if ($node->nid) {
+      $data = array(
+        'message' => t('The report has been updated by the Municipality.'),
         'level'  => 'success',
         'css_class'   => 'check',
       );

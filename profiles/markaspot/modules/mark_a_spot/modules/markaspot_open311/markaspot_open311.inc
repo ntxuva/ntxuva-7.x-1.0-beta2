@@ -437,11 +437,26 @@ function markaspot_open311_node_map_request($node, $status, $parameters) {
   }
 
   // Non Open311 compliant fields can be added here:
+
   if (isset($node->field_neighbourhood[$node->language][0]['value'])) $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
+
+  /* elseif (isset($node->field_address_id[$node->language][0]['value'])) {
+    $string = file_get_contents($GLOBALS['base_url'].'/georeport/v2/locations.json');
+    $json_a = json_decode($string, true);
+    foreach ($json_a as $address) {
+      if (intval($node->field_address_id[LANGUAGE_NONE][0]['value']) == intval($address['location_id']))
+      $node->field_neighbourhood[$node->language][0]['value'] = $address['neighbourhood'][0];
+    } 
+    
+    field_attach_update(node, $node);
+    $request['neighbourhood'] = $node->field_neighbourhood[$node->language][0]['value'];
+
+  } */
+  
 
   if (isset($parameters['phone_key'])) if ($parameters['phone_key']==666554 && isset($node->field_phone[$node->language][0]['value'])) $request['phone'] = $node->field_phone[$node->language][0]['value'];
 
-
+  if (isset($parameters['upd_key'])) if ($parameters['upd_key']==836845231987642137864928) $request['validated_cmm'] = $node->field_validatedcmm[0]['value'];
 
   return $request;
 }
@@ -501,6 +516,16 @@ function markaspot_open311_request_map_node($request) {
   if (isset($request->location_id)) $node->field_address_id[$node->language][0]['value'] = $request->location_id; // Non Open311 Compliant, solves problem of intregation with USSD
   if (isset($request->address_id)) $node->field_address_id[$node->language][0]['value'] = $request->address_id;
 
+  if (isset($node->field_address_id[$node->language][0]['value'])) {
+    $string = file_get_contents($GLOBALS['base_url'].'/georeport/v2/locations.json');
+    $json_a = json_decode($string, true);
+    foreach ($json_a as $address) {
+      if (intval($node->field_address_id[LANGUAGE_NONE][0]['value']) == intval($address['location_id']))
+      $node->field_neighbourhood[$node->language][0]['value'] = $address['neighbourhood'][0];
+    }
+  }
+
+
   if (isset($request->email)) $node->field_e_mail[$node->language][0]['value'] = $request->email;
   if (isset($request->phone)) $node->field_phone[$node->language][0]['value'] = $request->phone;
 
@@ -523,8 +548,9 @@ function markaspot_open311_request_map_node($request) {
     $request['status_code'] = $node->field_status[$node->language][0]["tid"];
     $term['status_sub'] = taxonomy_term_load($node->field_status[$node->language][0]["tid"]);
     $request['status_sub'] = $term['status_sub']->name;
-
   }
+
+
 
   $node->is_new = TRUE;
   $node->type = 'report';
